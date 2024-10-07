@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Generator</title>
+</head>
+<body>
+    <h1>Order Generator</h1>
+    <button id="generateOrder">Generate Random Order</button>
+    <div id="orderStatus"></div>
+
+    <script>
+        // Random seed generator
+        function randomSeed(seed) {
+            const x = Math.sin(seed) * 10000;
+            return x - Math.floor(x);
+        }
+
+        // Function to generate random order
+        function generateOrder() {
+            const seed = Date.now();  // You can make it user-defined for consistency
+            const randomValue = randomSeed(seed);
+            const order = {
+                customerId: Math.floor(randomValue * 10000),
+                items: [
+                    { itemId: Math.floor(randomValue * 100), quantity: Math.floor(randomValue * 10) },
+                    { itemId: Math.floor(randomSeed(seed + 1) * 100), quantity: Math.floor(randomSeed(seed + 1) * 10) }
+                ],
+                timestamp: new Date().toISOString(),
+                seed: seed
+            };
+            
+            // Convert order to JSON and send it to server
+            fetch('/api/orders', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(order)
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('orderStatus').innerText = `Order ID: ${data.orderId}, Status: Pending`;
+            });
+        }
+
+        // Event listener to generate order
+        document.getElementById('generateOrder').addEventListener('click', generateOrder);
+    </script>
+</body>
+</html>
